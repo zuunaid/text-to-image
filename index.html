@@ -613,7 +613,9 @@ function layoutMixedParagraph(segs, base, ls, maxW, fonts, colors, headingBold, 
           if(piece.text.trim()===''){ continue; }
           newLine();
         }
-        pushRun(w,h,{text:piece.text,size,weight,color,fontOrder,stroke:ss.stroke,shadow:ss.shadow,script: piece.script});
+        pushRun(w,h,{text:piece.text,size,weight,color,fontOrder,stroke:ss.stroke,shadow:ss.shadow,
+script: piece.script
+});
       }
     }
   }
@@ -657,7 +659,9 @@ function layoutSingleBlock(text, base, ls, maxW, fonts, color, styleOpts, kind){
       if(width>0 && width + m.w > maxW){
         flush();
       }
-      runs.push({text:piece.text, size:sz, weight, color, fontOrder, stroke:ss.stroke, shadow:ss.shadow, script: piece.script});
+      runs.push({text:piece.text, size:sz, weight, color, fontOrder, stroke:ss.stroke, shadow:ss.shadow,
+script: piece.script
+});
       width += m.w;
       lineH = Math.max(lineH, m.h);
     }
@@ -686,14 +690,6 @@ function buildAllLines(paras, base, ls, align, fonts, maxW, colors, headingBold,
     const lm = layoutMixedParagraph(p.segs, base, ls, maxW, fonts, colors, headingBold, styleOpts);
     lines.push(...lm);
   }
-
-  /* Force Arabic-only lines to use spacing = 2.0 */
-  for (const ln of lines) {
-    if (isArabicOnlyLine(ln)) {
-      recomputeArabicLineHeight(ln);
-    }
-  }
-
   return lines;
 }
 
@@ -706,8 +702,6 @@ function paginate(lines, boxH){
   if(cur.length) pages.push(cur);
   return pages;
 }
-
-/* Detect if a line is Arabic-only (used for RTL & spacing rules) */
 function isArabicOnlyLine(ln){
   let hasAr=false, hasNon=false;
   for(const r of ln.runs){
@@ -717,16 +711,6 @@ function isArabicOnlyLine(ln){
     }
   }
   return hasAr && !hasNon;
-}
-
-/* Recompute line height with spacing = 2.0 (Arabic-only lines) */
-function recomputeArabicLineHeight(ln){
-  const {ctx}=makeCtx(10,10);
-  let h = 0;
-  for(const r of ln.runs){
-    h = Math.max(h, lineHeight(ctx, r.size, 2.0));
-  }
-  ln.lineH = h;
 }
 
 /* Draw page */
@@ -741,13 +725,14 @@ function drawPage(W,H,bg,margins,lines,align,pageNum,pnSize){
   let y = margins.top + Math.max(0, Math.floor((textH - totalH)/2));
 
   for(const ln of lines){
-    // Right-align Arabic-only lines; others follow UI align
-    let lineAlign = align;
-    if (isArabicOnlyLine(ln)) lineAlign = 'right';
+  // Decide alignment for this line:
+  // If the line is ONLY Arabic text, force right align.
+  let lineAlign = align;
+  if (isArabicOnlyLine(ln)) lineAlign = 'right';
 
-    let startX = margins.left;
-    if(lineAlign==='center') startX = Math.floor((W - ln.width)/2);
-    else if(lineAlign==='right') startX = W - margins.right - ln.width;
+  let startX = margins.left;
+  if(lineAlign==='center') startX = Math.floor((W - ln.width)/2);
+  else if(lineAlign==='right') startX = W - margins.right - ln.width;
 
     let x = startX;
     for(const run of ln.runs){
@@ -763,6 +748,7 @@ function drawPage(W,H,bg,margins,lines,align,pageNum,pnSize){
 
       ctx.font=`${run.weight} ${run.size}px ${run.fontOrder}`;
       ctx.textBaseline='top'; ctx.textAlign='left';
+      // (We keep ctx.direction default; browsers handle shaping for Arabic correctly.)
 
       if(run.stroke?.on && run.stroke.width>0){
         ctx.save(); ctx.lineJoin='round'; ctx.miterLimit=2;
