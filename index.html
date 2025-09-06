@@ -365,6 +365,8 @@
 const $ = s=>document.querySelector(s);
 document.getElementById('align').value = 'left';
 const out=$('#output'), status=$('#status'), errorBox=$('#errorBox');
+/* Arabic-specific line spacing */
+const AR_LINE_SPACING = 2.0;
 function setStatus(m){status.textContent=m} function showError(m){errorBox.textContent=m}
 
 /* Default Google font ready + local script fonts */
@@ -574,10 +576,10 @@ function layoutMixedParagraph(segs, base, ls, maxW, fonts, colors, headingBold, 
   const lines=[]; let currentRuns=[]; let curWidth=0; let curH=0;
   const {ctx}=makeCtx(10,10);
 
-  function measure(text,size,weight,fontOrder){
-    setFont(ctx,size,fontOrder,weight);
-    return {w: ctx.measureText(text).width, h: lineHeight(ctx,size,ls)};
-  }
+  function measure(text,size,weight,fontOrder,lsArg){
+  setFont(ctx,size,fontOrder,weight);
+  return { w: ctx.measureText(text).width, h: lineHeight(ctx,size, lsArg) };
+}
   function pushRun(runW, runH, run){
     currentRuns.push(run); curWidth += runW; curH = Math.max(curH, runH);
   }
@@ -608,7 +610,8 @@ function layoutMixedParagraph(segs, base, ls, maxW, fonts, colors, headingBold, 
           fallbacks: fonts.fallbacks,
           script: piece.script
         });
-        const {w,h}=measure(piece.text,size,weight,fontOrder);
+        const lsPiece = (piece.script === 'ar') ? AR_LINE_SPACING : ls;
+const { w, h } = measure(piece.text, size, weight, fontOrder, lsPiece);
         if(curWidth>0 && curWidth + w > maxW){
           if(piece.text.trim()===''){ continue; }
           newLine();
@@ -631,10 +634,10 @@ function layoutSingleBlock(text, base, ls, maxW, fonts, color, styleOpts, kind){
   const perStyleName = fonts.per[perStyleKey];
 
   const {ctx}=makeCtx(10,10);
-  function measure(text,size,weight,fontOrder){
-    setFont(ctx,size,fontOrder,weight);
-    return {w: ctx.measureText(text).width, h: lineHeight(ctx,size,ls)};
-  }
+  function measure(text,size,weight,fontOrder,lsArg){
+  setFont(ctx,size,fontOrder,weight);
+  return { w: ctx.measureText(text).width, h: lineHeight(ctx,size, lsArg) };
+}
 
   const lines=[]; let runs=[]; let width=0; let lineH=lineHeight(ctx,sz,ls);
   const ss = resolveStrokeShadow(
@@ -655,15 +658,14 @@ function layoutSingleBlock(text, base, ls, maxW, fonts, color, styleOpts, kind){
         fallbacks: fonts.fallbacks,
         script: piece.script
       });
-      const m = measure(piece.text, sz, weight, fontOrder);
-      if(width>0 && width + m.w > maxW){
-        flush();
-      }
-      runs.push({text:piece.text, size:sz, weight, color, fontOrder, stroke:ss.stroke, shadow:ss.shadow,
-script: piece.script
+      const lsPiece = (piece.script === 'ar') ? AR_LINE_SPACING : ls;
+const m = measure(piece.text, sz, weight, fontOrder, lsPiece);
+if(width>0 && width + m.w > maxW){ flush(); }
+runs.push({ text: piece.text, size: sz, weight, color, fontOrder,
+  stroke: ss.stroke, shadow: ss.shadow, script: piece.script
 });
-      width += m.w;
-      lineH = Math.max(lineH, m.h);
+width += m.w;
+lineH = Math.max(lineH, m.h);
     }
   }
   flush();
