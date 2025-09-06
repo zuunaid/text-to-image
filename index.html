@@ -905,14 +905,14 @@ $('#generate').addEventListener('click', async ()=>{
     const headLoaded   = await tryLoadFont($('#headingFontFile').files?.[0]||null, 'HeadingFont');
 
     const fonts = {
-  globalUser: globalLoaded ? 'UserFont' : null,
-  per: {
-    title:   titleLoaded ? 'TitleFont' : null,
-    subtitle:subLoaded   ? 'SubtitleFont' : null,
-    heading: headLoaded  ? 'HeadingFont' : null
-  },
-  fallbacks: '"EnglishFont","ArabicFont","BengaliFont",sans-serif'
-};
+       globalUser: globalLoaded ? 'UserFont' : null,
+       per: {
+       title:   titleLoaded ? 'TitleFont' : null,
+       subtitle:subLoaded   ? 'SubtitleFont' : null,
+       heading: headLoaded  ? 'HeadingFont' : null
+     },
+    fallbacks: '"EnglishFont","ArabicFont","BengaliFont",sans-serif'
+  };
 
     setStatus('Preparing…');
     let W=parseInt($('#w').value||'1080',10), H=parseInt($('#h').value||'1920',10);
