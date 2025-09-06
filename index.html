@@ -2,6 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+  <style>
+  @font-face {
+    font-family: "EnglishFont";
+    src: url("english.ttf") format("truetype");
+    unicode-range: U+0000-024F; /* Basic Latin + extended Latin */
+  }
+  @font-face {
+    font-family: "ArabicFont";
+    src: url("arabic.ttf") format("truetype");
+    unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF; /* Arabic ranges */
+  }
+  @font-face {
+    font-family: "BengaliFont";
+    src: url("Kalpurush.ttf") format("truetype");
+    unicode-range: U+0980-09FF; /* Bengali */
+  }
+  body {
+    font-family: "EnglishFont", "ArabicFont", "BengaliFont", sans-serif;
+  }
+</style>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>IG Text Image Maker — Per-Style Colors + Fonts + Stroke/Shadow</title>
 
@@ -555,9 +575,7 @@ const out=$('#output'), status=$('#status'), errorBox=$('#errorBox');
 function setStatus(m){status.textContent=m} function showError(m){errorBox.textContent=m}
 
 /* Default Google font ready */
-const DEFAULT_GOOGLE_FONT = 'Noto Serif Bengali';
-async function ensureDefaultGoogleFont(){
-  try{
+
     if (document.fonts.check(`12px "${DEFAULT_GOOGLE_FONT}"`)) return true;
     await document.fonts.load(`400 24px "${DEFAULT_GOOGLE_FONT}"`);
     await document.fonts.load(`700 24px "${DEFAULT_GOOGLE_FONT}"`);
@@ -887,14 +905,14 @@ $('#generate').addEventListener('click', async ()=>{
     const headLoaded   = await tryLoadFont($('#headingFontFile').files?.[0]||null, 'HeadingFont');
 
     const fonts = {
-      globalUser: globalLoaded ? 'UserFont' : null,
-      per: {
-        title:   titleLoaded ? 'TitleFont' : null,
-        subtitle:subLoaded   ? 'SubtitleFont' : null,
-        heading: headLoaded  ? 'HeadingFont' : null
-      },
-      fallbacks: $('#fallbacks').value
-    };
+  globalUser: globalLoaded ? 'UserFont' : null,
+  per: {
+    title:   titleLoaded ? 'TitleFont' : null,
+    subtitle:subLoaded   ? 'SubtitleFont' : null,
+    heading: headLoaded  ? 'HeadingFont' : null
+  },
+  fallbacks: '"EnglishFont","ArabicFont","BengaliFont",sans-serif'
+};
 
     setStatus('Preparing…');
     let W=parseInt($('#w').value||'1080',10), H=parseInt($('#h').value||'1920',10);
@@ -1050,3 +1068,4 @@ $('#generate').addEventListener('click', async ()=>{
 </script>
 </body>
 </html>
+
