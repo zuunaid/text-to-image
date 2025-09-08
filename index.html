@@ -705,14 +705,11 @@ function paginate(lines, boxH){
   return pages;
 }
 function isArabicOnlyLine(ln){
-  let hasAr=false, hasNon=false;
-  for(const r of ln.runs){
-    if(/\S/.test(r.text)){
-      if(r.script === 'ar') hasAr = true;
-      else hasNon = true;
-    }
+  // Return true if the line contains ANY Arabic text
+  for (const r of ln.runs){
+    if (/\S/.test(r.text) && r.script === 'ar') return true;
   }
-  return hasAr && !hasNon;
+  return false;
 }
 
 /* Draw page */
